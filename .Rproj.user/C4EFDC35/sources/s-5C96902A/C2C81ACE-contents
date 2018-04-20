@@ -1,8 +1,14 @@
-name: "Sitio web de ecoinformática del laboratorio Marquet"
+name: Sitio web de ecoinformática del laboratorio Marquet
 navbar:
-  title: "Ecoinformática"
+  title: Ecoinformática
   left:
-    - text: "Home"
-      href: index.html
-    - text: "Sobre nosotros"
-      href: about.html
+  - text: Home
+    href: index.html
+  - text: Sobre nosotros
+    href: about.html
+output_dir: '.'
+output:
+  html_document:
+    lib_dir: site_libs
+    self_contained: no
+
