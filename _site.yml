@@ -1,0 +1,8 @@
+name: "Sitio web de ecoinformática del laboratorio Marquet"
+navbar:
+  title: "Ecoinformática"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Sobre nosotros"
+      href: about.html
