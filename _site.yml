@@ -6,4 +6,38 @@ navbar:
       href: index.html
     - text: "Sobre nosotros"
       href: about.html
+    - text: "GCM compareR app"
+      href: GCMcompareR.html
+    - text: Docencia
+      icon: fa-gear
+      menu:
+      - text: Ecología BIO231c 
+      - text: Modulo 1.1
+        href: Modulo1.1.html
+      - text: Modulo 1.2
+        href: Modulo1.2.html
+      - text: Modulo 2
+        href: Modulo2.html
+    - text: "SPARC"
+      icon: fa-gear
+      menu:
+      - text: "Network Flow" 
+      - text: Capas Costos
+        href: MapaCosto/Leaflet.html
+      - text: Priorización
+        href: SPARC/Priorizacion.html
+      - text: Presentación Priorización
+        href: SPARC/PriorizacionPres.html
+    - text: RPackages
+      icon: fa-gear
+      menu:
+      - text: RPackages
+      - text: NetworkExtinction
+        href: VignetteNetworkExt.html
 output_dir: "."
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    include:
+    css: styles.css

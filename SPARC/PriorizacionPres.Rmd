@@ -1,0 +1,270 @@
+---
+title: "SPARC Focal Region/Country Analysis"
+author: "Derek Corcoran, Javier Fajardo, Pablo Marquet y Patrick Roehrdanz"
+date: "`r format(Sys.time(), '%d/%m, %Y')`"
+output:
+  ioslides_presentation:
+    widescreen: true
+    incremental: true
+    logo: puc_logo.jpg
+---
+
+## Áreas focales
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE)
+library(leaflet)
+library(raster)
+library(sf)
+library(sp)
+library(tidyverse)
+pacman::p_load(tidyverse, kableExtra, raster, plotly, leaflet, leaflet.extras,sp, sf, rgdal, fasterize, maps, maptools, rasterVis, ggrepel, rworldxtra)
+data("countriesHigh")
+World <- st_as_sf(countriesHigh)
+Selected <- read_rds("Selected.rds")
+ForPlot <- read_rds("ForPlot.rds")
+std_errors <- read_rds("std_errors.rds")
+options("kableExtra.html.bsTable" = T)
+
+```
+
+```{r}
+
+Polinames <- c("Cerrado", "Chile central", "Chaco", "Guyana", "Mesoamerica", "Andes tropicales")
+Poligons <- list.files(path = "Poligonos", pattern = ".shp$", full.names = T, recursive = T) 
+
+Poligons <- Poligons[-6]
+Poligons <- Poligons %>% purrr::map(sf::read_sf)
+Poligons[[1]] <- sf::st_transform(Poligons[[1]], 4326)
+st_crs(Poligons[[5]]) <-  4326
+
+e = Poligons %>% purrr::map(extent)
+
+
+### Leer capas
+
+
+###capas
+#seleccionar Bio1 y Bio12
+
+
+bio_vars_x <- "bio_1"
+bio_vars_y <- "bio_12"
+
+```
+
+```{r}
+circleFun <- function(center = c(0,0),diameter = 1, npoints = 100){r = diameter / 2
+tt <- seq(0,2*pi,length.out = npoints)
+xx <- center[1] + r * cos(tt)
+yy <- center[2] + r * sin(tt)
+return(data.frame(x = xx, y = yy))}
+
+Plots <- list()
+
+for(i in 1:length(ForPlot)){
+  circle <- circleFun(center = c(0,0), diameter = std_errors[[i]] * 2, npoints = 300)
+
+  Plots[[i]] <-  ggplot(ForPlot[[i]], aes(x = bio_1, y = bio_12)) + geom_point(aes(color = Within_circle, shape = cordex))+ geom_path(data = circle, aes(x, y), alpha = .3) + geom_vline(xintercept = 0, color="grey") + geom_hline(yintercept = 0, color="grey")  + scale_color_manual(values = c("#ad2f48", "#414685"),guide = FALSE) + coord_fixed() + theme_minimal() + theme(legend.position = 'none') + geom_text_repel(ggplot2::aes(label = GCM, x = bio_1,y = bio_12), size = 3) + geom_point(data = Selected[[i]], aes(color = "green", shape = cordex)) + xlab("Temperature") + ylab("Precipitation")
+}
+
+```
+
+```{r}
+Poligons[[1]] <- sf::st_transform(Poligons[[1]], 4326)
+NT <- World %>% filter(REGION == "South America and the Caribbean")
+
+G <- ggplot() + geom_sf(data = NT) 
+
+for(i in 1:length(Poligons)){
+  G <- G + geom_sf(data = Poligons[[i]], fill = "red", alpha = 0.5) 
+}
+
+G + theme_bw()
+```
+
+## Andes tropicales
+
+```{r}
+Plots[[6]]
+```
+
+## Andes tropicales
+
+
+```{r}
+Selected[[6]] <- Selected[[6]] %>% dplyr::select(bio_1, bio_12, GCM, Quad, cordex)
+
+kable(Selected[[6]], digits = 3) %>% kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+## Andes tropicales Norte
+
+```{r}
+NAndesSol <- read_rds("RasterSolNAndes.rds")
+
+PA <- read_rds("PA_SF_NAndes.rds") %>% as_Spatial()
+
+crs(NAndesSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(NAndesSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(NAndesSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(NAndesSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+
+## Andes tropicales Sur
+
+
+```{r}
+SAndesSol <- read_rds("RasterSolSAndes.rds")
+
+PA <- read_rds("PA_SF_SAndes.rds") %>% as_Spatial()
+
+crs(SAndesSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(SAndesSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(SAndesSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(SAndesSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+## Chile central
+
+```{r}
+Plots[[2]]
+```
+
+## Chile central
+
+```{r}
+Selected[[2]] <- Selected[[2]] %>% dplyr::select(bio_1, bio_12, GCM, Quad, cordex)
+
+kable(Selected[[2]], digits = 3) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+
+## Chile central
+
+```{r}
+ChileSol <- read_rds("RasterSolChile.rds")
+
+PA <- read_rds("PA_SF_Chile.rds") %>% as_Spatial()
+
+crs(ChileSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(ChileSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(ChileSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(ChileSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+
+## Guyana
+
+
+```{r}
+Plots[[4]]
+```
+
+## Guyana
+
+```{r}
+Selected[[4]] <- Selected[[4]] %>% dplyr::select(bio_1, bio_12, GCM, Quad, cordex)
+
+kable(Selected[[4]], digits = 3) %>%  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+
+## Guyana
+
+```{r}
+GuyanaSol <- read_rds("RasterSolGuyana.rds")
+
+PA <- read_rds("PA_SF_Guyana.rds") %>% as_Spatial()
+
+crs(GuyanaSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(GuyanaSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(GuyanaSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(GuyanaSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+## Mesoamérica
+
+
+```{r}
+Plots[[5]]
+```
+
+## Mesoamérica
+
+
+```{r}
+Selected[[5]] <- Selected[[5]] %>% dplyr::select(bio_1, bio_12, GCM, Quad, cordex)
+
+kable(Selected[[5]], digits = 3) %>% kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+## Mesoamérica
+
+```{r}
+MesoSol <- read_rds("RasterSolMeso.rds")
+
+PA <- read_rds("PA_SF_Meso.rds") %>% as_Spatial()
+
+crs(MesoSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(MesoSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(MesoSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(MesoSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+

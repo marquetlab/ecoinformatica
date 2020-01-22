@@ -1,0 +1,146 @@
+---
+title: "Explicación de generación de costo a utilizar en el Neotrópico para Network flow"
+output:
+  html_document:
+    fig_caption: yes
+bibliography: BiblioLeaf.bib
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE)
+library(rasterVis)
+library(raster)
+library(rgdal)
+library(sf)
+library(tidyverse)
+library(leaflet)
+```
+
+```{r leer capas, cache=TRUE}
+PA_SF <- read_rds("PA_SF.rds")
+#PA <- read_rds("PA.rds")
+Naidoo <- read_rds("Naidoo.rds")
+Total <- read_rds("Total_Cost.rds")
+Agro <- readRDS("Agro.rds")
+Urban <- readRDS("Urban.rds")
+
+Mask <- Naidoo
+values(Mask) <- ifelse(is.na(values(Mask)), NA, 1)
+values(Agro) <- ifelse(is.na(values(Agro)), 75, 25)
+Agro <- Mask*Agro
+values(Urban) <- ifelse(is.na(values(Urban)), 75, 25)
+Urban <- Mask*Urban
+
+```
+
+La finalidad del siguiente documento es el explicar paso a paso la generación de capas de costo a utilizar para las priorizaciones de conservación a realizar con network flow, proritizr, zonation y linkage mapper, con los cuales se pretende recomendar nuevas áreas protegidas para el neotrópico.
+
+### Capa inicial de costo
+
+El costo basal utilizado para generar la capa de costo fue basado en una capa mundial de costos por hectárea  tomando en cuenta cultivos, ganadería y otros costos [@naidoo2007global], dicha capa se observa en el siguiente mapa:
+
+```{r, cache=TRUE, fig.cap= "Figura 1. Mapa interactivo con los costos por hectárea estimados para el neotrópico"}
+bins <- round(as.numeric(quantile(values(Total)[!is.na(values(Total))])))
+
+bins[length(bins)] <- bins[length(bins)] + 1
+
+pal <- colorBin(rev(c("#d7191c","#fdae61","#a6d96a","#1a9641")), domain = values(Total)[!is.na(values(Total))], na.color = "transparent", bins = bins)
+
+leaflet() %>% addTiles() %>%
+  addRasterImage(Naidoo ,colors = pal, opacity = 0.8) %>%
+  addLegend(pal = pal, values = values(Total),
+    title = "Costo por hectarea")
+```
+
+Como se observa en el mapa y en la figura 1, la distribución de los costos es exponencial, por lo cual la escala de costos se realiza según los cuantiles. 
+
+```{r, fig.cap= "Figura 2, histográma de la capa de costos generada por Naidoo e Iwamura 2007", cache = TRUE}
+
+histogram(Naidoo, xlab = "Costo por hectárea", ylab = "Frecuencia")
+```
+
+### Modificaciones a la capa de costo
+
+#### Áreas protegidas
+
+Debido a que las áreas protegidas ya son parte de la red, el costo de que se incorporen a la misma es de cero. Para esto se tomo la base de datos de The World Database on Protected Areas [@juffe2015world], y se seleccionaron las áreas protegidas de categorías Ia, Ib y II, y se rasterizaron (Figura 3). El raster generado tiene un valor de cero en los sectores con áreas protegidas, y de uno en los otros sectores, lo cual al ser multiplicado por la capa en la figura 1, tranformaría los costos de las áreas protegidas en 0 y las de el resto del área las mantendría en su valor original.
+
+```{r, cache=TRUE, fig.cap= "Figura 3. Polígonos con las áreas protegidas a utilizar en la base de datos"}
+PA_head <- as_Spatial(PA_SF)
+
+pal <- colorFactor(c("#e41a1c","#377eb8", "#4daf4a"), domain = PA_head@data$IUCN_CAT, na.color = "transparent", levels =  unique(PA_head@data$IUCN_CAT))
+
+leaflet(PA_head) %>% addTiles() %>%
+  addPolygons(color = "#444444", weight = 0.01, smoothFactor = 0.5, opacity = 1.0, fillOpacity = 0.5, fillColor = ~pal(IUCN_CAT),  highlightOptions = highlightOptions(color = "white", weight = 2,  bringToFront = TRUE), popup = PA_head@data$NAME) %>%
+  addLegend(pal = pal, values =PA_head@data$IUCN_CAT, title = "Categoría IUCN")
+```
+
+#### Agricultura
+
+Las áreas con mucha carga agrícola no debíeran ser tomadas en cuenta para ser incorporadas en la red de áreas protegidas del neotrópico, ya que su costo de restauración es muy alto. Debido a esto se tomó una capa de uso de suelo [@tuanmu2014global], y todas las celdas donde mas de el 50% de las celdas tenían eran de uso agrícola fueron eliminadas de las posibles soluciones (Figura 4).
+
+```{r, cache=TRUE, fig.cap= "Figura 4. Mapa interactivo proporciones de uso agrícola"}
+bins <- c(0, 50, 100)
+
+pal <- colorBin(c("#0571b0", "#ca0020"), domain = values(Agro)[!is.na(values(Agro))], na.color = "transparent", bins = bins)
+
+leaflet() %>% addTiles() %>%
+  addRasterImage(Agro ,colors = pal, opacity = 0.8) %>%
+  addLegend(pal = pal, values = values(Agro),
+    title = "Proporción de uso agrícola")
+```
+
+#### Urbanización
+
+A igual que la Agricultura, las áreas urbanizadas no debíeran ser tomadas en cuenta para ser incorporadas en la red de áreas protegidas del neotrópico, ya que su costo de restauración es muy alto. Debido a esto se tomó una capa de uso de suelo [@tuanmu2014global], y todas las celdas donde mas de el 50% de las celdas tenían eran de uso urbano fueron eliminadas de las posibles soluciones (Figura 5).
+
+```{r, cache=TRUE, fig.cap= "Figura 5. Mapa interactivo proporciones de uso urbano"}
+bins <- c(0, 50, 100)
+
+pal <- colorBin(c("#0571b0", "#ca0020"), domain = values(Urban)[!is.na(values(Urban))], na.color = "transparent", bins = bins)
+
+leaflet() %>% addTiles() %>%
+  addRasterImage(Urban ,colors = pal, opacity = 0.8) %>%
+  addLegend(pal = pal, values = values(Urban),
+    title = "Proporción de uso urbano")
+```
+
+#### Costo total 
+
+Por lo tanto si modificamos la capa inicial de costo de Naidoo, y la modificamos poniendole un costo de cero a las áreas protegidas (por que su costo de incorporación es cero), y eliminamos las áreas urbanas y agricolas de los sectores factibles de conservar obtenemos la figura 6 que es la propuesta de costos a utilizar, en esta figura agragamos tambien los polígonos de zonas focales para permitir una revisión mas acuciosa.
+
+```{r,cache=TRUE, results='hide'}
+Chaco <- readOGR("east_Chaco_Nori.shp")
+
+Mesoamerica <- readOGR("Mesoamerica_hastaPanama.shp")
+
+NT <- readOGR("NT.shp")
+p <- readOGR("data0/hotspots_2011_polygons.shp")
+
+Andes <- p[p@data$NAME == "Tropical Andes",]
+
+CentralChile <- readOGR("area_sparc.shp")
+
+Guyana <- readOGR("Guyana_Shield_Corridor.shp")
+
+Cerrado <- readOGR("01_Matopiba_2016.shp")
+
+```
+
+```{r, cache=TRUE, fig.cap= "Figura 6, costo final a utilizar"}
+bins <- round(as.numeric(quantile(values(Total)[!is.na(values(Total))])))
+
+bins[length(bins)] <- bins[length(bins)] + 1
+
+pal <- colorBin(rev(c("#d7191c","#fdae61","#a6d96a","#1a9641")), domain = values(Total)[!is.na(values(Total))], na.color = "transparent", bins = bins)
+
+leaflet() %>% addTiles() %>%
+  addRasterImage(Total,colors = pal, opacity = 0.8)  %>%  addPolygons(data = NT , fill = FALSE, group = "Neotropic", color = "red", label = "Neotropic", popup = "Neotropic")%>% addPolygons(data = Chaco, fill = FALSE, group = "Chaco", weight = 2, label = "Chaco", popup = "Chaco") %>% addPolygons(data = Mesoamerica, fill = FALSE, group = "Mesoamerica", weight = 2, label = "Mesoamerica", popup = "Mesoamerica") %>%  addPolygons(data = Andes, fill = FALSE, group = "Tropical Andes", weight = 2, label = "Tropical Andes", popup = "Tropical Andes") %>% addPolygons(data = Cerrado, fill = FALSE, group = "Cerrado", weight = 2, label = "Cerrado", popup = "Cerrado") %>% addPolygons(data = CentralChile, fill = FALSE, group = "Central Chile", weight = 2, label = "Central Chile", popup = "Central Chile") %>% addPolygons(data = Guyana, fill = FALSE, group = "Guyana", weight = 2, label = "Guyana", popup = "Guyana") %>% setView(-71.0382679, -10, zoom = 3) %>%
+  addLegend(pal = pal, values = values(Total),
+    title = "Costo por hectarea") %>%   addLayersControl(
+    overlayGroups = c("Neotropic","Chaco", "Central Chile","Cerrado", "Guyana", "Mesoamerica", "Tropical Andes"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+## Referencias

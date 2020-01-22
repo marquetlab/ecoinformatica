@@ -1,0 +1,144 @@
+---
+title: "Priorización preeliminar para el Neotrópico usando network flow"
+output:
+  html_document:
+    fig_caption: yes
+---
+
+## Importante
+
+Lo primero **Esta página se demora mucho en cargar**, debido a que presenta imágenes pesadas 
+
+Este documento representa tan solo una priorización **preeliminar** de las áreas focales del Neotrópico, esto se debe a que no estamos utilizando todos los taxas ni estamos examinando todos los modelos climáticos que utilizaremos finalmente. Por lo tanto, solo usar la infomración de esta página como un ejemplo de los resultados de Network Flow.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE)
+library(leaflet)
+library(raster)
+library(sf)
+library(sp)
+library(tidyverse)
+```
+
+### Modo de uso de esta página
+
+Todos los mapas interactivos de esta página funcionan de la misma manera, tienen de fondo una capa de priorización de Network flow, donde cuanto más alto es el valor, más prioritaria de consevar es esta capa. Sobrepuesta a esta capa se encuentra una capa con las áreas protegidas de la misma área, si pasas el cursor sobre alguna área protegida, verás el nombre del área protegida en cuestión. Bajo la leyenda de colores de la prioridad, se encuentra puedes ativar y desactivar la capa de polígonos de áreas protegidas para visualizar la priorización bajo las áreas protegidas.
+
+## Andes tropicales Norte
+
+```{r}
+NAndesSol <- read_rds("RasterSolNAndes.rds")
+
+PA <- read_rds("PA_SF_NAndes.rds") %>% as_Spatial()
+
+crs(NAndesSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(NAndesSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(NAndesSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(NAndesSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+## Andes tropicales Sur
+
+
+```{r}
+SAndesSol <- read_rds("RasterSolSAndes.rds")
+
+PA <- read_rds("PA_SF_SAndes.rds") %>% as_Spatial()
+
+crs(SAndesSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(SAndesSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(SAndesSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(SAndesSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+
+## Chile central
+
+```{r}
+ChileSol <- read_rds("RasterSolChile.rds")
+
+PA <- read_rds("PA_SF_Chile.rds") %>% as_Spatial()
+
+crs(ChileSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(ChileSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(ChileSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(ChileSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+
+## Guyana
+
+```{r}
+GuyanaSol <- read_rds("RasterSolGuyana.rds")
+GuyanaSol <- log1p(GuyanaSol)
+
+PA <- read_rds("PA_SF_Guyana.rds") %>% as_Spatial()
+
+crs(GuyanaSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(GuyanaSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(GuyanaSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(GuyanaSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```
+
+## Mesoamérica
+
+```{r}
+MesoSol <- read_rds("RasterSolMeso.rds")
+
+PA <- read_rds("PA_SF_Meso.rds") %>% as_Spatial()
+
+crs(MesoSol) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+pal <- colorNumeric(c("#0C2C84", "yellow", "red"), values(MesoSol),
+                    na.color = "transparent")
+
+leaflet(PA) %>% addTiles() %>% addRasterImage(MesoSol, colors = pal, opacity = 0.5) %>% addLegend(pal = pal, values = values(MesoSol),title = "Priority")%>%
+  addPolygons(color = "green", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 1,
+              fillColor = "green",
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE), group = "Protected Area", label = ~NAME, popup = ~NAME) %>%
+  # Layers control
+  addLayersControl(overlayGroups = c("Protected Area"),
+    options = layersControlOptions(collapsed = TRUE)) 
+
+```

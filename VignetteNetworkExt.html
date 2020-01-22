@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Isidora Avila and Derek Corcoran" />
+
+<meta name="date" content="2019-04-04" />
+
+<title>How to use the NetworExtinction Package</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Ecoinformática</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">Sobre nosotros</a>
+</li>
+<li>
+  <a href="GCMcompareR.html">GCM compareR app</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    Docencia
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Ecología BIO231c</li>
+    <li>
+      <a href="Modulo1.1.html">Modulo 1.1</a>
+    </li>
+    <li>
+      <a href="Modulo1.2.html">Modulo 1.2</a>
+    </li>
+    <li>
+      <a href="Modulo2.html">Modulo 2</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    SPARC
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Network Flow</li>
+    <li>
+      <a href="MapaCosto/Leaflet.html">Capas Costos</a>
+    </li>
+    <li>
+      <a href="SPARC/Priorizacion.html">Priorización</a>
+    </li>
+    <li>
+      <a href="SPARC/PriorizacionPres.html">Presentación Priorización</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-gear"></span>
+     
+    RPackages
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">RPackages</li>
+    <li>
+      <a href="VignetteNetworkExt.html">NetworkExtinction</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">How to use the NetworExtinction Package</h1>
+<h4 class="author">Isidora Avila and Derek Corcoran</h4>
+<h4 class="date">2019-04-04</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a><ul>
+<li><a href="#how-to-install-the-package"><span class="toc-section-number">1.1</span> How to install the package</a></li>
+<li><a href="#how-to-represent-a-food-web-in-r"><span class="toc-section-number">1.2</span> How to represent a food-web in R</a></li>
+</ul></li>
+<li><a href="#functions"><span class="toc-section-number">2</span> Functions</a><ul>
+<li><a href="#extinctions-functions"><span class="toc-section-number">2.1</span> Extinctions functions</a><ul>
+<li><a href="#extinctions-from-most-to-less-conected-species-in-the-network"><span class="toc-section-number">2.1.1</span> Extinctions from most to less conected species in the network</a></li>
+<li><a href="#extinctions-using-a-customized-order"><span class="toc-section-number">2.1.2</span> Extinctions using a customized order</a></li>
+<li><a href="#random-extinction"><span class="toc-section-number">2.1.3</span> Random extinction</a></li>
+<li><a href="#comparison-of-null-hypothesis-with-other-extinction-histories"><span class="toc-section-number">2.1.4</span> Comparison of Null hypothesis with other extinction histories</a></li>
+</ul></li>
+<li><a href="#plotting-the-extinction-histories-of-a-network"><span class="toc-section-number">2.2</span> Plotting the extinction histories of a network</a></li>
+<li><a href="#degree-distribution-function"><span class="toc-section-number">2.3</span> Degree distribution function</a></li>
+</ul></li>
+<li><a href="#bibliography">Bibliography</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>The objectives of the <em>NetworkExtinction</em> package is to analyze and visualize the topology of food-webs and its responses to the simulated extinction of species.</p>
+<p>The main indexes used for these analyzes are:</p>
+<ol style="list-style-type: decimal">
+<li><p>Number of nodes: Total number of species in the network <span class="citation">(Dunne, Williams, and Martinez 2002)</span>.</p></li>
+<li><p>Number of links: Number of trophic relationships represented in the food web <span class="citation">(Dunne, Williams, and Martinez 2002)</span>.</p></li>
+<li><p>Connectance: Proportion of all possible trophic links that are completed <span class="citation">(Dunne, Williams, and Martinez 2002)</span>.</p></li>
+<li><p>Primary removals: It occurs when the researcher intentionally removes one species, simulating a single extinction.</p></li>
+<li><p>Secondary extinctions: A secondary extinction occurs when a non-basal species loses all of its prey items due to the removal of another species. In this context, basal species can experience primary removal, but not secondary extinctions <span class="citation">(Dunne, Williams, and Martinez 2002)</span>.</p></li>
+<li><p>Total extinctions: The sum of primary removal and secondary extinctions in one simulation.</p></li>
+</ol>
+<p>This package was built with a total of six functions. There are four functions to analyze the cascading effect of extinctions in a food-web, one function to plot the results of any of the extinction analysis, and another to analize the degree distribution in the network.</p>
+<p>Functions to analyze the cascading effect of extinctions are the following:</p>
+<ul>
+<li><p><em>Mostconnected:</em> To simulate extinctions from the most connected species to less connected in the network.</p></li>
+<li><p><em>ExtinctionOrder:</em> To simulate extinctions in a customized order.</p></li>
+<li><p><em>RandomExtinctions:</em> To develop a null hypothesis by generating random orders of simulated extinctions.</p></li>
+<li><p><em>CompareExtinctions:</em> To compare the observed secondary extinctions with the expected secondary extinction generated by random extinction.</p></li>
+</ul>
+<p>The function to plot results is:</p>
+<ul>
+<li><em>ExtinctionPlot:</em> To plot the results of any of the extinction functions</li>
+</ul>
+<p>The function to analize the degree distribution is:</p>
+<ul>
+<li><em>degree_distribution:</em> To test if the degrees in the network follow a power law, exponential, or truncated distribution.</li>
+</ul>
+<div id="how-to-install-the-package" class="section level2">
+<h2><span class="header-section-number">1.1</span> How to install the package</h2>
+<p>As any package in cran the <em>install.packages</em> function can be used to intall de <em>NetworkExtinction</em> package as shown in the following code.</p>
+<pre class="r"><code>install.packages(NetworkExtinction)
+library(NetworkExtinction)</code></pre>
+</div>
+<div id="how-to-represent-a-food-web-in-r" class="section level2">
+<h2><span class="header-section-number">1.2</span> How to represent a food-web in R</h2>
+<p>The first step to make any analysis in the <em>NetworkExtinction</em> package is to build a representation of a food-web, using the network package <span class="citation">(Butts and others 2008)</span>.</p>
+<p>In order to create a network object you can start with a matrix or an edgelist object (for more details see the <a href="(https://cran.r-project.org/web/packages/network/vignettes/networkVignette.pdf)">network package vignette</a>).</p>
+<p>As an example of how to build a food-web we will explain how to create the network shown in figure 1.</p>
+<div class="figure">
+<img src="toymodel_trophic-network5.jpg" alt="Figure 1. Food-web to be contructed in R" />
+<p class="caption">Figure 1. Food-web to be contructed in R</p>
+</div>
+<p>This network has ten nodes where each node represents one species. Here, four nodes are basal species (primary producers, from sp.1 to sp.4), three nodes are intermediate (primary consumers, from sp.5 to sp.7), and the remaining three are top predators (from sp.8 to sp.10).</p>
+<p>In order to build an interaction matrix (Figure 2) that represent the food-web, we create a square matrix with a column and a row representing each species. Columns represent the consumers and the rows the resources, where 1 represents a trophic interaction and 0 its absence. Note that in the columns, the first four species only have zeros because they are not consumers. For example, if we look at species 7, it feeds on species 4 and 3. In order to represent that, we would go to column 7 and put a 1 in rows 3 and 4.</p>
+<div class="figure">
+<img src="matrix.jpg" alt="Figure 2. Matrix representation of the food-web" />
+<p class="caption">Figure 2. Matrix representation of the food-web</p>
+</div>
+<p>The following code is an example of how to build the matrix in figure 2 using R:</p>
+<pre class="r"><code>a&lt;- matrix(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0),nrow=10, ncol=10)
+
+a
+#&gt;       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+#&gt;  [1,]    0    0    0    0    1    0    0    0    0     0
+#&gt;  [2,]    0    0    0    0    0    1    0    0    0     1
+#&gt;  [3,]    0    0    0    0    0    0    1    0    0     0
+#&gt;  [4,]    0    0    0    0    0    0    1    0    0     0
+#&gt;  [5,]    0    0    0    0    0    0    0    1    0     0
+#&gt;  [6,]    0    0    0    0    0    0    0    1    1     0
+#&gt;  [7,]    0    0    0    0    0    0    0    0    0     1
+#&gt;  [8,]    0    0    0    0    0    0    0    0    0     1
+#&gt;  [9,]    0    0    0    0    0    0    0    0    0     0
+#&gt; [10,]    0    0    0    0    0    0    0    0    0     0</code></pre>
+<p>Once the matrix is ready, we use the <em>as.network</em> function from the <em>network</em> package to build a network object.</p>
+<pre class="r"><code>library(network)
+net &lt;- as.network(a, loops = TRUE)
+net
+#&gt;  Network attributes:
+#&gt;   vertices = 10 
+#&gt;   directed = TRUE 
+#&gt;   hyper = FALSE 
+#&gt;   loops = TRUE 
+#&gt;   multiple = FALSE 
+#&gt;   bipartite = FALSE 
+#&gt;   total edges= 10 
+#&gt;     missing edges= 0 
+#&gt;     non-missing edges= 10 
+#&gt; 
+#&gt;  Vertex attribute names: 
+#&gt;     vertex.names 
+#&gt; 
+#&gt; No edge attributes</code></pre>
+</div>
+</div>
+<div id="functions" class="section level1">
+<h1><span class="header-section-number">2</span> Functions</h1>
+<div id="extinctions-functions" class="section level2">
+<h2><span class="header-section-number">2.1</span> Extinctions functions</h2>
+<div id="extinctions-from-most-to-less-conected-species-in-the-network" class="section level3">
+<h3><span class="header-section-number">2.1.1</span> Extinctions from most to less conected species in the network</h3>
+<p>The <em>Mostconnected</em> function sorts the species from the most connected node to the least connected node, using total degree. Then, it removes the most connected node in the network, simulating its extinction, and recalculates the topological indexes of the network and counts how many species have indegree 0 (secondary extinction), not considering primary producers. Then, it removes the nodes that were secondarily extinct in the previous step and recalculates which node is the new most connected species. This step is repeated until the number of links in the network is zero <span class="citation">(Sole and Montoya 2001; Dunne, Williams, and Martinez 2002; Dunne and Williams 2009)</span>.</p>
+<pre class="r"><code>library(NetworkExtinction)
+data(&quot;net&quot;)
+Mostconnected(Network = net)</code></pre>
+<pre><code>#&gt; [1] 1
+#&gt; [1] 2
+#&gt; [1] 3
+#&gt; [1] 4</code></pre>
+<table>
+<caption>Table 1: The resulting dataframe of the Mostconnected function</caption>
+<thead>
+<tr class="header">
+<th align="right">Spp</th>
+<th align="right">nodesS</th>
+<th align="right">linksS</th>
+<th align="right">Conectance</th>
+<th align="right">LinksPerSpecies</th>
+<th align="right">Secondary_extinctions</th>
+<th align="right">isolated_nodes</th>
+<th align="right">AccSecondaryExtinction</th>
+<th align="right">NumExt</th>
+<th align="right">TotalExt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">6</td>
+<td align="right">9</td>
+<td align="right">7</td>
+<td align="right">0.0864198</td>
+<td align="right">0.7777778</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">7</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">0.0816327</td>
+<td align="right">0.5714286</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">2</td>
+<td align="right">0.0555556</td>
+<td align="right">0.3333333</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+<p>The result of this function is the dataframe shown in table 1. The first column called <em>Spp</em> indicates the order in which the species were removed simulating an extinction. The column <em>Secondary_extinctions</em> represents the numbers of species that become extinct given that they do not have any food items left in the food-web, while the <em>AccSecondaryExtinction</em> column represents the accumulated secondary extinctions. (To plot the results, see function <em>ExtinctionPlot</em>.)</p>
+<pre class="r"><code>data(&quot;net&quot;)
+history &lt;- Mostconnected(Network = net)
+#&gt; [1] 1
+#&gt; [1] 2
+#&gt; [1] 3
+#&gt; [1] 4
+ExtinctionPlot(History = history, Variable = &quot;AccSecondaryExtinction&quot;)</code></pre>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-7-1.png" alt="Figure 3. The graph shows the number of accumulated secondary extinctions that occur when removing species from the most to the least connected species" width="576" />
+<p class="caption">
+Figure 3. The graph shows the number of accumulated secondary extinctions that occur when removing species from the most to the least connected species
+</p>
+</div>
+</div>
+<div id="extinctions-using-a-customized-order" class="section level3">
+<h3><span class="header-section-number">2.1.2</span> Extinctions using a customized order</h3>
+<p>The <em>ExtinctionOrder</em> function takes a network and extinguishes nodes using a customized order. Then, it calculates the topological network indexes and the secondary extinctions.</p>
+<pre class="r"><code>data(&quot;net&quot;)
+ExtinctionOrder(Network = net, Order = c(2,4,7))</code></pre>
+<table>
+<caption>Table 2: The resulting dataframe of the ExtinctionOrder function</caption>
+<thead>
+<tr class="header">
+<th align="right">Spp</th>
+<th align="right">nodesS</th>
+<th align="right">linksS</th>
+<th align="right">Conectance</th>
+<th align="right">Secondary_extinctions</th>
+<th align="right">AccSecondaryExtinction</th>
+<th align="right">NumExt</th>
+<th align="right">TotalExt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">9</td>
+<td align="right">8</td>
+<td align="right">0.0987654</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">0.1020408</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">3</td>
+<td align="right">0.1200000</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-10-1.png" alt="Figure 4. The graph shows the number of accumulated secondary extinctions that occur when removing species in a custom order. In this example species 2 is removed followed by 4 and lastly species 7 is removed" width="576" />
+<p class="caption">
+Figure 4. The graph shows the number of accumulated secondary extinctions that occur when removing species in a custom order. In this example species 2 is removed followed by 4 and lastly species 7 is removed
+</p>
+</div>
+<p>The results of this function are a dataframe with the topological indexes of the network calculated from each extinction step (Table 2), and a plot that shows the number of accumulated secondary extinctions that occured with each removed node (Figure 4).</p>
+</div>
+<div id="random-extinction" class="section level3">
+<h3><span class="header-section-number">2.1.3</span> Random extinction</h3>
+<p>The <em>RandomExtinctions</em> function generates n random extinction orders, determined by the argument <em>nsim</em>. The first result of this function is a dataframe (table 3). The column <em>NumExt</em> represents the number of species removed, <em>AccSecondaryExtinction</em> is the average number of secondary extinctions for each species removed, and <em>SdAccSecondaryExtinction</em> is its standard deviation. The second result is a graph (figure 5), where the x axis is the number of species removed and the y axis is the number of accumulated secondary extinctions. The solid line is the average number of secondary extinctions for every simulated primary extinction, and the red area represents the mean <span class="math inline">\(\pm\)</span> the standard deviation of the simulations.</p>
+<pre class="r"><code>data(net)
+RandomExtinctions(Network= net, nsim= 500)</code></pre>
+<table>
+<caption>Table 3: The resulting dataframe of the RandomExtinctions function</caption>
+<thead>
+<tr class="header">
+<th align="right">NumExt</th>
+<th align="right">SdAccSecondaryExtinction</th>
+<th align="right">AccSecondaryExtinction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0.4587165</td>
+<td align="right">0.300000</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">0.7549941</td>
+<td align="right">0.682000</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">0.9540547</td>
+<td align="right">1.140000</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">1.0935849</td>
+<td align="right">1.592000</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">1.1795574</td>
+<td align="right">1.993865</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">1.2518519</td>
+<td align="right">2.235981</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">1.1971914</td>
+<td align="right">2.231270</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="right">1.1779286</td>
+<td align="right">2.258065</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="right">1.1227299</td>
+<td align="right">2.320755</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-13-1.png" alt="Figure 5. The resulting graph of the RandomExtinctions function" width="576" />
+<p class="caption">
+Figure 5. The resulting graph of the RandomExtinctions function
+</p>
+</div>
+</div>
+<div id="comparison-of-null-hypothesis-with-other-extinction-histories" class="section level3">
+<h3><span class="header-section-number">2.1.4</span> Comparison of Null hypothesis with other extinction histories</h3>
+<p>The <em>RandomExtinctons</em> function generates a null hypothesis for us to compare it with either an extinction history generated by the <em>ExtinctionOrder</em> function or the <em>Mostconnected</em> function. In order to compare the expected extinctions developed by our null hypothesis with the observed extinction history, we developed the <em>CompareExtinctions</em> function. The way to use this last function is to first create the extinction history and the null hypothesis, and then the <em>CompareExtinctins</em> function to compare both extinction histories.</p>
+<pre class="r"><code>data(&quot;net&quot;)
+History &lt;- ExtinctionOrder(Network = net, Order = c(1,2,3,4,5,6,7,8,9,10))
+
+set.seed(2)
+NullHyp &lt;- RandomExtinctions(Network = net, nsim = 500)
+
+Comparison &lt;- CompareExtinctions(Nullmodel = NullHyp, Hypothesis = History)</code></pre>
+<p>The first result will be a graph (Figue 6) with a dashed line showing the observed extinction history and a solid line showing the expected value of secondary extinctions randomly generated.</p>
+<p>The second result will be a Test object which will show the goodness of fit statistics of the comparison. In this case, since the p value is 0.22 which is larger than 0.05, we consider that the generated extinction history is significantly different than the null hypothesis.</p>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-15-1.png" alt="Figure 6. The resulting graph of the CompareExtinctions function, where the dashed line shows the observed extinction history, and a solid line shows the expected value of secondary extinctions originated at random" width="576" />
+<p class="caption">
+Figure 6. The resulting graph of the CompareExtinctions function, where the dashed line shows the observed extinction history, and a solid line shows the expected value of secondary extinctions originated at random
+</p>
+</div>
+<pre class="r"><code>Comparison$Test
+#&gt; 
+#&gt;  Pearson&#39;s Chi-squared test
+#&gt; 
+#&gt; data:  Hypothesis$DF$AccSecondaryExtinction and Nullmodel$sims$AccSecondaryExtinction[1:length(Hypothesis$DF$AccSecondaryExtinction)]
+#&gt; X-squared = 20, df = 16, p-value = 0.2202</code></pre>
+</div>
+</div>
+<div id="plotting-the-extinction-histories-of-a-network" class="section level2">
+<h2><span class="header-section-number">2.2</span> Plotting the extinction histories of a network</h2>
+<p>The <em>ExtinctionPlot</em> function takes a NetworkTopology class object and plots the index of interest after every extinction. By default, the function plots the number of accumulated secondary extinctions after every primary extinction (Figure 7), but any of the indexes can be ploted with the function by changing the Variable argument (Figure 8).</p>
+<pre class="r"><code>data(net)
+history &lt;- Mostconnected(Network = net)
+#&gt; [1] 1
+#&gt; [1] 2
+#&gt; [1] 3
+#&gt; [1] 4
+ExtinctionPlot(History = history)</code></pre>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-17-1.png" alt="Figure 7. Example of the use of the ExtinctionPlot function showing the accumulated secondary extinctions against number of extinctions" width="576" />
+<p class="caption">
+Figure 7. Example of the use of the ExtinctionPlot function showing the accumulated secondary extinctions against number of extinctions
+</p>
+</div>
+<pre class="r"><code>ExtinctionPlot(History = history, Variable = &quot;LinksPerSpecies&quot;)</code></pre>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-18-1.png" alt="Figure 8. Another example of the use of the ExtinctionPlot function showing the number of links per species against number of extinctions" width="576" />
+<p class="caption">
+Figure 8. Another example of the use of the ExtinctionPlot function showing the number of links per species against number of extinctions
+</p>
+</div>
+</div>
+<div id="degree-distribution-function" class="section level2">
+<h2><span class="header-section-number">2.3</span> Degree distribution function</h2>
+<p>The <em>degree_distribution</em> function calculates the cumulative distribution of the number of links that each species in the food network has <span class="citation">(Estrada 2007)</span>. Then, the observed distribution is fitted to the exponential, power-law and truncated power-law distribution models.</p>
+<p>The results of this function are shown in figure 9 and table 4. The graph shows the observed degree distribution in a log-log scale fitting the three models mentioned above, for this example we use an example dataset of Chilean litoral rocky shores <span class="citation">(Kéfi et al. 2015)</span>. The table shows the fitted model information ordered by descending AIC, that is, the model in the first row is the most probable distribution, followed by the second an finally the third distribution in this case (Table 3), the Exponential distribution would be the best model, followed by the Power-law and finally the Truncated power-law model.</p>
+<pre class="r"><code>data(&quot;chilean_intertidal&quot;)
+degree_distribution(chilean_intertidal, name = &quot;Test&quot;)</code></pre>
+<div class="figure">
+<img src="VignetteNetworkExt_files/figure-html/unnamed-chunk-21-1.png" alt="Figure 9: Fitted vs observed values of the degree distribution. The black line and points show the observed values, the red, green and blue lines show the fitted values for the Exponential, power law and trucated distribution, respectively" width="576" />
+<p class="caption">
+Figure 9: Fitted vs observed values of the degree distribution. The black line and points show the observed values, the red, green and blue lines show the fitted values for the Exponential, power law and trucated distribution, respectively
+</p>
+</div>
+<table>
+<caption>Table 4: Model selection analysis</caption>
+<thead>
+<tr class="header">
+<th align="right">sigma</th>
+<th align="left">isConv</th>
+<th align="right">finTol</th>
+<th align="right">logLik</th>
+<th align="right">AIC</th>
+<th align="right">BIC</th>
+<th align="right">deviance</th>
+<th align="right">df.residual</th>
+<th align="left">model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0922763</td>
+<td align="left">TRUE</td>
+<td align="right">8.8e-06</td>
+<td align="right">66.057711</td>
+<td align="right">-128.115423</td>
+<td align="right">-123.676408</td>
+<td align="right">0.5704994</td>
+<td align="right">67</td>
+<td align="left">Exponential</td>
+</tr>
+<tr class="even">
+<td align="right">0.2246009</td>
+<td align="left">TRUE</td>
+<td align="right">2.3e-06</td>
+<td align="right">5.420293</td>
+<td align="right">-6.840586</td>
+<td align="right">-2.461276</td>
+<td align="right">3.2789603</td>
+<td align="right">65</td>
+<td align="left">Power</td>
+</tr>
+<tr class="odd">
+<td align="right">0.4845141</td>
+<td align="left">TRUE</td>
+<td align="right">3.2e-06</td>
+<td align="right">-45.321942</td>
+<td align="right">94.643884</td>
+<td align="right">99.023194</td>
+<td align="right">15.2590056</td>
+<td align="right">65</td>
+<td align="left">truncated</td>
+</tr>
+</tbody>
+</table>
+<p>The main objective of fitting the cumulative distribution of the degrees to those models, is to determine if the vulnerability of the network to the removal of the most connected species is related to their degree distribution. Networks that follow a power law distribution are very vulnerable to the removal of the most connected nodes, while networks that follow exponential degree distribution are less vulnerable to the removal of the most connected nodes <span class="citation">(see Albert and Barabási 2002, <span class="citation">Dunne, Williams, and Martinez (2002)</span>, <span class="citation">Estrada (2007)</span>, <span class="citation">Santana et al. (2013)</span>)</span>.</p>
+</div>
+</div>
+<div id="bibliography" class="section level1 unnumbered">
+<h1>Bibliography</h1>
+<div id="refs" class="references">
+<div id="ref-albert2002statistical">
+<p>Albert, Réka, and Albert-László Barabási. 2002. “Statistical Mechanics of Complex Networks.” <em>Reviews of Modern Physics</em> 74 (1). APS: 47.</p>
+</div>
+<div id="ref-butts2008network">
+<p>Butts, Carter T, and others. 2008. “Network: A Package for Managing Relational Data in R.” <em>Journal of Statistical Software</em> 24 (2): 1–36.</p>
+</div>
+<div id="ref-dunne2009cascading">
+<p>Dunne, Jennifer A, and Richard J Williams. 2009. “Cascading Extinctions and Community Collapse in Model Food Webs.” <em>Philosophical Transactions of the Royal Society B: Biological Sciences</em> 364 (1524). The Royal Society: 1711–23.</p>
+</div>
+<div id="ref-dunne2002food">
+<p>Dunne, Jennifer A, Richard J Williams, and Neo D Martinez. 2002. “Food-Web Structure and Network Theory: The Role of Connectance and Size.” <em>Proceedings of the National Academy of Sciences</em> 99 (20). National Acad Sciences: 12917–22.</p>
+</div>
+<div id="ref-estrada2007food">
+<p>Estrada, Ernesto. 2007. “Food Webs Robustness to Biodiversity Loss: The Roles of Connectance, Expansibility and Degree Distribution.” <em>Journal of Theoretical Biology</em> 244 (2). Elsevier: 296–307.</p>
+</div>
+<div id="ref-kefi2015network">
+<p>Kéfi, Sonia, Eric L Berlow, Evie A Wieters, Lucas N Joppa, Spencer A Wood, Ulrich Brose, and Sergio A Navarrete. 2015. “Network Structure Beyond Food Webs: Mapping Non-Trophic and Trophic Interactions on Chilean Rocky Shores.” <em>Ecology</em> 96 (1). Wiley Online Library: 291–303.</p>
+</div>
+<div id="ref-de2013topological">
+<p>Santana, Charles N de, Alejandro F Rozenfeld, Pablo A Marquet, and Carlos M Duarte. 2013. “Topological Properties of Polar Food Webs.” <em>Marine Ecology Progress Series</em> 474: 15–26.</p>
+</div>
+<div id="ref-sole2001complexity">
+<p>Sole, Ricard V, and M Montoya. 2001. “Complexity and Fragility in Ecological Networks.” <em>Proceedings of the Royal Society of London B: Biological Sciences</em> 268 (1480). The Royal Society: 2039–45.</p>
+</div>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
